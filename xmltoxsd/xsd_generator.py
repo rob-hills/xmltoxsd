@@ -3,6 +3,8 @@ from .xml_parser import load_xml
 from .schema_inferer import infer_type
 
 class XSDGenerator:
+    XSD_FAILURE_ERROR_MESSAGE = 'Failed to generate XSD schema.'
+
     def __init__(self):
         self.ns_map = {"xs": "http://www.w3.org/2001/XMLSchema"}
         self.xsd = None
@@ -21,7 +23,7 @@ class XSDGenerator:
             self.process_element(xml_tree.getroot(), self.xsd, min_occurs=min_occurs)
             return etree.tostring(self.xsd, pretty_print=True).decode()
         else:
-            return "Failed to generate XSD schema."
+            return self.XSD_FAILURE_ERROR_MESSAGE
 
     def process_element(self, element, parent, min_occurs="1"):
         """
@@ -57,4 +59,4 @@ if __name__ == "__main__":
         # print("XSD Schema Generated Successfully:")
         print(xsd_schema)
     else:
-        print("Failed to generate XSD schema.")
+        print(generator.XSD_FAILURE_ERROR_MESSAGE)
