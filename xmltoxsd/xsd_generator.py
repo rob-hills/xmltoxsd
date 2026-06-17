@@ -20,12 +20,12 @@ class XSDGenerator:
         xml_tree = load_xml(xml_path)
         if xml_tree is not None:
             self.xsd = etree.Element("{http://www.w3.org/2001/XMLSchema}schema", nsmap=self.ns_map)
-            self.process_element(xml_tree.getroot(), self.xsd, min_occurs=min_occurs)
+            self.process_element(xml_tree.getroot(), self.xsd, min_occurs=min_occurs, is_first_element=True)
             return etree.tostring(self.xsd, pretty_print=True).decode()
         else:
             return self.XSD_FAILURE_ERROR_MESSAGE
 
-    def process_element(self, element, parent, min_occurs="1"):
+    def process_element(self, element, parent, min_occurs="1", is_first_element=False):
         """
         Recursively processes an XML element to generate its XSD representation.
 
@@ -33,12 +33,16 @@ class XSDGenerator:
         - element (etree.Element): The current XML element.
         - parent (etree.Element): The parent element in the XSD schema.
         - min_occurs (str): The minOccurs value for the element.
+        - is_first_element (bool): Flag to indicate the first element being processed
         """
         ns = "{http://www.w3.org/2001/XMLSchema}"
         element_name = element.tag.split('}')[-1]
         same_element = parent.find(f"./*[@name='{element_name}']")
         if same_element is None:
-            element_def = etree.SubElement(parent, f"{ns}element", name=element_name, minOccurs=min_occurs, maxOccurs="1")
+            if is_first_element:
+                element_def = etree.SubElement(parent, f"{ns}element", name=element_name)
+            else:
+                element_def = etree.SubElement(parent, f"{ns}element", name=element_name, minOccurs=min_occurs, maxOccurs="1")
 
             if len(element) > 0 or len(element.attrib):
                 complex_type = etree.SubElement(element_def, f"{ns}complexType")
