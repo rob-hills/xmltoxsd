@@ -90,8 +90,4 @@ class XSDGenerator:
 if __name__ == "__main__":
     xml_path = "tests/xml_files/valid_basic.xml"  # Update this path to your XML file.
     generator = XSDGenerator(xml_path, min_occurs="0")
-    if generator.xsd:
-        # print("XSD Schema Generated Successfully:")
-        print(generator.xsd_as_pretty_string)
-    else:
-        print(generator.XSD_FAILURE_ERROR_MESSAGE)
+    print(generator.xsd_as_pretty_string)
