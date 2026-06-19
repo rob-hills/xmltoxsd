@@ -5,11 +5,21 @@ from .schema_inferer import infer_type
 class XSDGenerator:
     XSD_FAILURE_ERROR_MESSAGE = 'Failed to generate XSD schema.'
 
-    def __init__(self):
-        self.ns_map = {"xs": "http://www.w3.org/2001/XMLSchema"}
-        self.xsd = None
+    @property
+    def xsd(self) -> etree.Element: return self._xsd
 
-    def generate_xsd_as_element(self, xml_path:str, min_occurs="0") -> etree.Element:
+    @xsd.setter
+    def xsd(self, value:etree.Element):
+        self._xsd = value
+
+    def __init__(self, xml_path:str, min_occurs="0"):
+        self.ns_map = {"xs": "http://www.w3.org/2001/XMLSchema"}
+        self._xsd = None
+        self._xsd_as_string = None
+        self._xsd_as_pretty_string = None
+        self.__generate_xsd(xml_path, min_occurs)
+
+    def __generate_xsd(self, xml_path:str, min_occurs="0"):
         """
         Generates an XSD schema (etree.Element) for the given XML file.
 
@@ -17,27 +27,35 @@ class XSDGenerator:
         - xml_path (str): Path to the XML file.
         - min_occurs (str): Default minOccurs value for elements.
         """
+        self._xsd_as_string = None
+        self._xsd_as_pretty_string = None
         xml_tree = load_xml(xml_path)
         if xml_tree is not None:
-            self.xsd = etree.Element("{http://www.w3.org/2001/XMLSchema}schema", nsmap=self.ns_map)
-            self.process_element(xml_tree.getroot(), self.xsd, min_occurs=min_occurs, is_first_element=True)
-            return self.xsd
+            self._xsd = etree.Element("{http://www.w3.org/2001/XMLSchema}schema", nsmap=self.ns_map)
+            self.process_element(xml_tree.getroot(), self._xsd, min_occurs=min_occurs, is_first_element=True)
         else:
-            return None
+            self._xsd_as_string = self.XSD_FAILURE_ERROR_MESSAGE
+            self._xsd_as_pretty_string = self.XSD_FAILURE_ERROR_MESSAGE
 
-    def generate_xsd(self, xml_path, min_occurs="0"):
-        """
-        Generates an XSD schema (pretty printed string) for the given XML file.
+    @property
+    def xsd_as_string(self) -> str:
+        if self._xsd_as_string is None:
+            if self.xsd is None:
+                self._xsd_as_string = self.XSD_FAILURE_ERROR_MESSAGE
+            else:
+                self._xsd_as_string = etree.tostring(self.xsd, pretty_print=False).decode()
+        return self._xsd_as_string
 
-        Parameters:
-        - xml_path (str): Path to the XML file.
-        - min_occurs (str): Default minOccurs value for elements.
-        """
-        self.xsd = self.generate_xsd_as_element(xml_path, min_occurs)
-        if self.xsd is not None:
-            return etree.tostring(self.xsd, pretty_print=True).decode()
-        else:
-            return self.XSD_FAILURE_ERROR_MESSAGE
+
+    @property
+    def xsd_as_pretty_string(self) -> str:
+        if self._xsd_as_pretty_string is None:
+            if self.xsd is None:
+                self._xsd_as_pretty_string = self.XSD_FAILURE_ERROR_MESSAGE
+            else:
+                self._xsd_as_pretty_string = etree.tostring(self.xsd, pretty_print=True).decode()
+        return self._xsd_as_pretty_string
+
 
     def process_element(self, element, parent, min_occurs="1", is_first_element=False):
         """
@@ -70,11 +88,10 @@ class XSDGenerator:
                 element_def.set('type', infer_type(element.text))
 
 if __name__ == "__main__":
-    generator = XSDGenerator()
     xml_path = "tests/xml_files/valid_basic.xml"  # Update this path to your XML file.
-    xsd_schema = generator.generate_xsd(xml_path, min_occurs="0")
-    if xsd_schema:
+    generator = XSDGenerator(xml_path, min_occurs="0")
+    if generator.xsd:
         # print("XSD Schema Generated Successfully:")
-        print(xsd_schema)
+        print(generator.xsd_as_pretty_string)
     else:
         print(generator.XSD_FAILURE_ERROR_MESSAGE)
