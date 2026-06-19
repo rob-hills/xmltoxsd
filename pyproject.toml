@@ -23,7 +23,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Operating System :: OS Independent",
 ]
-urls = [{homepage = "https://github.com/Mustangodhra/xmltoxsd"}, {homepage = "https://github.com/rob-hills/xmltoxsd"}]
+urls = {homepage = "https://github.com/Mustangodhra/xmltoxsd", robs_fork = "https://github.com/rob-hills/xmltoxsd"}
 
 dependencies = [
     "lxml>=4.6.3",

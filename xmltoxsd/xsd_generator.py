@@ -11,7 +11,7 @@ class XSDGenerator:
 
     def generate_xsd(self, xml_path, min_occurs="0"):
         """
-        Generates an XSD schema for the given XML file.
+        Generates an XSD schema (lxml.etree) for the given XML file.
 
         Parameters:
         - xml_path (str): Path to the XML file.
