@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "xmltoxsd"
-version = "0.1.1"
+version = "0.1.2"
 authors = [{name = "Mustansir Godhrawala", email = "mustansirgodhrawala9@gmail.com"}, {name = "Rob Hills", email = "rob@medimorphosis.com.auj"}]
 description = "A library for converting XML documents to XSD schemas."
 readme = "README.md"
