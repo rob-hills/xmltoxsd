@@ -9,9 +9,9 @@ class XSDGenerator:
         self.ns_map = {"xs": "http://www.w3.org/2001/XMLSchema"}
         self.xsd = None
 
-    def generate_xsd(self, xml_path, min_occurs="0"):
+    def generate_xsd_as_element(self, xml_path:str, min_occurs="0") -> etree.Element:
         """
-        Generates an XSD schema (lxml.etree) for the given XML file.
+        Generates an XSD schema (etree.Element) for the given XML file.
 
         Parameters:
         - xml_path (str): Path to the XML file.
@@ -21,6 +21,20 @@ class XSDGenerator:
         if xml_tree is not None:
             self.xsd = etree.Element("{http://www.w3.org/2001/XMLSchema}schema", nsmap=self.ns_map)
             self.process_element(xml_tree.getroot(), self.xsd, min_occurs=min_occurs, is_first_element=True)
+            return self.xsd
+        else:
+            return None
+
+    def generate_xsd(self, xml_path, min_occurs="0"):
+        """
+        Generates an XSD schema (pretty printed string) for the given XML file.
+
+        Parameters:
+        - xml_path (str): Path to the XML file.
+        - min_occurs (str): Default minOccurs value for elements.
+        """
+        self.xsd = self.generate_xsd_as_element(xml_path, min_occurs)
+        if self.xsd is not None:
             return etree.tostring(self.xsd, pretty_print=True).decode()
         else:
             return self.XSD_FAILURE_ERROR_MESSAGE
